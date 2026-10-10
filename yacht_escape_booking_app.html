@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yacht Escape | Luxury Charters</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            light: '#e2e8f0',
+                            accent: '#06b6d4',
+                            magenta: '#d946ef'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #06b6d4, #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .bg-mesh {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.3) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.3) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Smooth view transitions */
+        .view-section {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .view-hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative">
+
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <main id="login-view" class="view-section flex-1 flex items-center justify-center min-h-screen relative overflow-hidden">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Luxury Yacht Background" class="w-full h-full object-cover object-center animate-float" style="animation-duration: 20s;" />
+            <div class="absolute inset-0 bg-gradient-to-b from-brand-dark/80 via-brand-dark/60 to-brand-dark/90"></div>
+        </div>
+
+        <div class="z-10 w-full max-w-md p-6 relative animate-slide-up">
+            <!-- Decorative elements -->
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-brand-accent rounded-full mix-blend-multiply filter blur-2xl opacity-50"></div>
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-brand-magenta rounded-full mix-blend-multiply filter blur-2xl opacity-50"></div>
+
+            <div class="glass-panel rounded-3xl p-8 text-center relative overflow-hidden">
+                <div class="mb-8">
+                    <i class="fa-solid fa-anchor text-4xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500 mb-4 inline-block"></i>
+                    <h1 class="font-serif text-4xl font-bold text-white mb-2">Yacht Escape</h1>
+                    <p class="text-slate-300 text-sm">Experience the ocean in unparalleled luxury.</p>
+                </div>
+
+                <form id="login-form" class="space-y-5">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-regular fa-envelope text-slate-400"></i>
+                        </div>
+                        <input type="email" id="email" class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all placeholder-slate-400" placeholder="Email Address" required value="guest@yachtescape.com">
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-lock text-slate-400"></i>
+                        </div>
+                        <input type="password" id="password" class="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all placeholder-slate-400" placeholder="Password" required value="secret123">
+                    </div>
+                    
+                    <button type="submit" id="login-btn" class="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-400 hover:to-fuchsia-400 text-white font-semibold rounded-xl py-3 px-4 shadow-lg shadow-cyan-500/30 transition-all transform hover:-translate-y-1 flex justify-center items-center gap-2">
+                        <span>Enter the Experience</span>
+                        <i class="fa-solid fa-arrow-right text-sm hidden transition-all" id="login-spinner" class="fa-solid fa-circle-notch fa-spin"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <main id="dashboard-view" class="view-section view-hidden flex-1 bg-mesh min-h-screen flex flex-col">
+        
+        <!-- Navbar -->
+        <nav class="glass-panel sticky top-0 z-40 border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-white shadow-lg">
+                            <i class="fa-solid fa-anchor"></i>
+                        </div>
+                        <span class="font-serif font-bold text-2xl tracking-wide">Yacht Escape</span>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
+                            <a href="#" class="hover:text-white transition-colors">Destinations</a>
+                            <a href="#" class="hover:text-white transition-colors">Fleet</a>
+                            <a href="#" class="hover:text-white transition-colors">Experiences</a>
+                        </div>
+                        <div class="h-6 w-px bg-slate-700 hidden md:block"></div>
+                        <button id="logout-btn" class="text-slate-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-2 group">
+                            <span class="hidden sm:inline">Sign Out</span>
+                            <i class="fa-solid fa-arrow-right-from-bracket group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="relative pt-16 pb-24 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <span class="text-brand-accent font-semibold tracking-wider uppercase text-sm mb-4 block animate-fade-in">Curated Collection</span>
+                <h2 class="text-5xl md:text-7xl font-serif font-bold mb-6 leading-tight animate-slide-up">
+                    Find Your <br/> <span class="text-gradient">Perfect Horizon</span>
+                </h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg md:text-xl mb-10 animate-fade-in" style="animation-delay: 0.2s;">
+                    Browse our exclusive selection of luxury yachts. Colourful sunsets, crystal clear waters, and trendy vessels await your command.
+                </p>
+                
+                <!-- Filters -->
+                <div class="flex flex-wrap justify-center gap-3 animate-slide-up" style="animation-delay: 0.3s;">
+                    <button class="px-6 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors backdrop-blur-md text-sm font-medium">All Yachts</button>
+                    <button class="px-6 py-2 rounded-full bg-transparent border border-white/10 hover:border-white/30 text-slate-400 hover:text-white transition-colors backdrop-blur-md text-sm font-medium">Motor</button>
+                    <button class="px-6 py-2 rounded-full bg-transparent border border-white/10 hover:border-white/30 text-slate-400 hover:text-white transition-colors backdrop-blur-md text-sm font-medium">Sailing</button>
+                    <button class="px-6 py-2 rounded-full bg-transparent border border-white/10 hover:border-white/30 text-slate-400 hover:text-white transition-colors backdrop-blur-md text-sm font-medium">Catamaran</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Yacht Grid -->
+        <section class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 relative z-10">
+            <div id="yacht-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Yachts injected by JS -->
+            </div>
+        </section>
+        
+        <footer class="border-t border-white/10 mt-auto py-8 text-center text-slate-500 text-sm">
+            <p>&copy; 2026 Yacht Escape. Designed for luxury.</p>
+        </footer>
+    </main>
+
+    <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="absolute inset-0 bg-brand-dark/80 backdrop-blur-sm" id="modal-backdrop"></div>
+        <div class="glass-panel w-full max-w-2xl mx-4 rounded-3xl overflow-hidden relative z-10 transform scale-95 transition-transform duration-300" id="modal-content">
+            <button id="close-modal" class="absolute top-4 right-4 w-10 h-10 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white transition-colors z-20 backdrop-blur-md">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modal-body" class="flex flex-col md:flex-row">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // Firebase Configuration (Handling injected env vars safely)
+        let app;
+        let auth;
+        
+        try {
+            const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+            const firebaseConfig = JSON.parse(firebaseConfigStr);
+            if (Object.keys(firebaseConfig).length > 0) {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+            } else {
+                console.warn("Firebase config is empty. Auth features will be simulated.");
+            }
+        } catch (error) {
+            console.error("Error initializing Firebase:", error);
+        }
+
+        // DOM Elements
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const yachtGrid = document.getElementById('yacht-grid');
+        
+        const bookingModal = document.getElementById('booking-modal');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const closeModalBtn = document.getElementById('close-modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalBody = document.getElementById('modal-body');
+
+        const yachts = [
+            {
+                id: 'y1',
+                name: 'Azure Dream',
+                type: 'Motor Yacht',
+                length: '120 ft',
+                guests: 12,
+                price: '$12,500 / day',
+                image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                desc: 'Experience pure luxury on the Azure Dream. Featuring a jacuzzi on the sun deck and a state-of-the-art entertainment system.'
+            },
+            {
+                id: 'y2',
+                name: 'Sunset Cruiser',
+                type: 'Speed Yacht',
+                length: '65 ft',
+                guests: 8,
+                price: '$4,200 / day',
+                image: 'https://images.unsplash.com/photo-1605281317010-fe5ffe798166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                desc: 'Perfect for coastal hopping and catching the perfect sunset. Fast, sleek, and exceptionally comfortable.'
+            },
+            {
+                id: 'y3',
+                name: 'Ocean Whisper',
+                type: 'Sailing Yacht',
+                length: '95 ft',
+                guests: 10,
+                price: '$8,000 / day',
+                image: 'https://images.unsplash.com/photo-1545562083-a6007043fda4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                desc: 'For the purists. Let the wind guide you on this beautifully crafted modern sailing yacht with classic lines.'
+            },
+            {
+                id: 'y4',
+                name: 'Neon Oasis',
+                type: 'Catamaran',
+                length: '75 ft',
+                guests: 14,
+                price: '$6,500 / day',
+                image: 'https://images.unsplash.com/photo-1520690214124-2405c5217036?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                desc: 'Incredible stability and space. The Neon Oasis offers massive deck areas perfect for trendy parties and relaxation.'
+            },
+            {
+                id: 'y5',
+                name: 'Stella Maris',
+                type: 'Super Yacht',
+                length: '150 ft',
+                guests: 16,
+                price: '$25,000 / day',
+                image: 'https://images.unsplash.com/photo-1582236371587-8dfccdbf144a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                desc: 'The pinnacle of maritime engineering. Features a helipad, submarine, and a highly trained crew of 10.'
+            },
+            {
+                id: 'y6',
+                name: 'Coral Escape',
+                type: 'Motor Yacht',
+                length: '85 ft',
+                guests: 10,
+                price: '$5,800 / day',
+                image: 'https://images.unsplash.com/photo-1534008897995-27a23e859048?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                desc: 'Vibrant interiors and sweeping panoramic windows make the Coral Escape a trendy choice for the modern explorer.'
+            }
+        ];
+
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColors = {
+                success: 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200',
+                error: 'bg-rose-500/20 border-rose-500/50 text-rose-200',
+                info: 'bg-cyan-500/20 border-cyan-500/50 text-cyan-200'
+            };
+            
+            const icons = {
+                success: '<i class="fa-solid fa-check-circle"></i>',
+                error: '<i class="fa-solid fa-circle-exclamation"></i>',
+                info: '<i class="fa-solid fa-info-circle"></i>'
+            };
+
+            toast.className = `glass-panel flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transform transition-all duration-300 translate-x-full opacity-0 ${bgColors[type]}`;
+            toast.innerHTML = `
+                <div class="text-lg">${icons[type]}</div>
+                <div class="font-medium text-sm">${message}</div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            });
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function renderYachts() {
+            yachtGrid.innerHTML = '';
+            yachts.forEach((yacht, index) => {
+                const card = document.createElement('div');
+                // Staggered animation
+                card.className = `glass-panel rounded-2xl overflow-hidden group hover:-translate-y-2 transition-all duration-300 animate-slide-up hover:shadow-[0_0_30px_rgba(6,182,212,0.3)]`;
+                card.style.animationDelay = `${0.1 * index}s`;
+                
+                card.innerHTML = `
+                    <div class="relative h-64 overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/90 to-transparent z-10"></div>
+                        <img src="${yacht.image}" alt="${yacht.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 right-4 z-20 bg-brand-dark/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold border border-white/10">
+                            ${yacht.type}
+                        </div>
+                        <div class="absolute bottom-4 left-4 z-20 w-full pr-8">
+                            <h3 class="font-serif text-2xl font-bold text-white mb-1 group-hover:text-brand-accent transition-colors">${yacht.name}</h3>
+                            <div class="flex items-center gap-4 text-xs text-slate-300">
+                                <span><i class="fa-solid fa-ruler-combined mr-1"></i> ${yacht.length}</span>
+                                <span><i class="fa-solid fa-user-group mr-1"></i> ${yacht.guests} Guests</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-slate-400 text-sm mb-6 line-clamp-2">${yacht.desc}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="font-semibold text-lg text-white">${yacht.price}</div>
+                            <button onclick="window.openBookingModal('${yacht.id}')" class="px-5 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-brand-accent hover:text-white transition-all text-sm font-medium">
+                                View & Book
+                            </button>
+                        </div>
+                    </div>
+                `;
+                yachtGrid.appendChild(card);
+            });
+        }
+
+        window.openBookingModal = (yachtId) => {
+            const yacht = yachts.find(y => y.id === yachtId);
+            if (!yacht) return;
+
+            modalBody.innerHTML = `
+                <div class="w-full md:w-1/2 h-64 md:h-auto relative">
+                    <img src="${yacht.image}" alt="${yacht.name}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent to-brand-dark/90 md:bg-gradient-to-l md:from-transparent md:to-brand-dark/90 hidden md:block"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/90 to-transparent md:hidden"></div>
+                </div>
+                <div class="w-full md:w-1/2 p-8 flex flex-col justify-center bg-brand-dark/95">
+                    <div class="inline-block px-3 py-1 bg-brand-accent/20 text-brand-accent rounded-full text-xs font-semibold mb-4 w-max border border-brand-accent/30">
+                        ${yacht.type}
+                    </div>
+                    <h2 class="font-serif text-3xl font-bold text-white mb-2">${yacht.name}</h2>
+                    <p class="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500 font-semibold mb-6">${yacht.price}</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6 text-sm text-slate-300">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-ruler-combined text-slate-500 w-5"></i>
+                            <span>${yacht.length}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-user-group text-slate-500 w-5"></i>
+                            <span>Up to ${yacht.guests} Guests</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-martini-glass text-slate-500 w-5"></i>
+                            <span>Premium Bar</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-anchor text-slate-500 w-5"></i>
+                            <span>Full Crew</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-slate-400 text-sm mb-8 leading-relaxed">${yacht.desc}</p>
+                    
+                    <button onclick="window.confirmBooking('${yacht.name}')" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-400 hover:to-fuchsia-400 text-white font-semibold shadow-lg shadow-fuchsia-500/25 transition-all transform hover:-translate-y-1">
+                        Confirm Booking Request
+                    </button>
+                </div>
+            `;
+
+            bookingModal.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        };
+
+        const closeBookingModal = () => {
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                bookingModal.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
+        };
+
+        modalBackdrop.addEventListener('click', closeBookingModal);
+        closeModalBtn.addEventListener('click', closeBookingModal);
+
+        window.confirmBooking = (yachtName) => {
+            closeBookingModal();
+            setTimeout(() => {
+                showToast(`Booking request sent for ${yachtName}! Our concierge will contact you shortly.`, 'success');
+            }, 300);
+        };
+
+        function switchView(viewName) {
+            if (viewName === 'dashboard') {
+                loginView.classList.add('view-hidden');
+                setTimeout(() => {
+                    dashboardView.classList.remove('view-hidden');
+                    renderYachts();
+                }, 500);
+            } else {
+                dashboardView.classList.add('view-hidden');
+                setTimeout(() => {
+                    loginView.classList.remove('view-hidden');
+                }, 500);
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btnText = loginBtn.querySelector('span');
+            const btnIcon = loginBtn.querySelector('i:last-child');
+            const originalIconClass = btnIcon.className;
+            
+            // Visual loading state
+            btnText.textContent = 'Authenticating...';
+            btnIcon.className = 'fa-solid fa-circle-notch fa-spin text-sm transition-all';
+            loginBtn.disabled = true;
+
+            if (auth) {
+                try {
+                    const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                    if (token) {
+                        await signInWithCustomToken(auth, token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    // AuthStateChanged will handle the view switch
+                } catch (error) {
+                    console.error("Login failed", error);
+                    showToast(error.message || "Authentication failed", "error");
+                    resetLoginBtn();
+                }
+            } else {
+                // Simulate login if Firebase isn't configured in environment
+                setTimeout(() => {
+                    showToast("Logged in successfully (Simulated)", "success");
+                    switchView('dashboard');
+                    resetLoginBtn();
+                }, 1000);
+            }
+
+            function resetLoginBtn() {
+                btnText.textContent = 'Enter the Experience';
+                btnIcon.className = 'fa-solid fa-arrow-right text-sm transition-all';
+                loginBtn.disabled = false;
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            if (auth) {
+                try {
+                    await signOut(auth);
+                    showToast("Signed out successfully", "info");
+                } catch (error) {
+                    showToast("Error signing out", "error");
+                }
+            } else {
+                switchView('login');
+                showToast("Signed out successfully", "info");
+            }
+        });
+
+        // Listen for auth state changes
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    switchView('dashboard');
+                } else {
+                    switchView('login');
+                }
+            });
+        } else {
+            // Initial render state for simulated environment
+            switchView('login');
+        }
+
+    </script>
+</body>
+</html>
